@@ -53,49 +53,54 @@ function extractAddresses(district, text) {
 
 const sections = ["渋谷区", "目黒区", "世田谷区", "品川区", "港区", "新宿区"];
 
-const addressArray = sections.flatMap((section) =>
-  extractAddresses(section, text)
-).filter(address => !sections.some(section => section === address));
+const addressArray = sections
+  .flatMap((section) => extractAddresses(section, text))
+  .filter((address) => !sections.some((section) => section === address));
 
 console.log(addressArray);
 
-// 特定のクラス名を持つすべてのdiv要素を取得
-const divElements = document.querySelectorAll(".ui-frame");
+function periodicallyCheckAddresses() {
+  // 特定のクラス名を持つすべてのdiv要素を取得
+  const divElements = document.querySelectorAll(".ui-frame");
 
-console.log(divElements.length);
+  console.log(divElements.length);
 
-divElements.forEach((div) => {
-  // 各div要素内の住所を取得
-  let address = null;
-  const tbody = div.querySelector("tbody");
-  if (tbody) {
-    const rows = tbody.querySelectorAll("tr");
-    rows.forEach((row) => {
-      const th = row.querySelector("th");
-      if (th && th.textContent.trim() === "所在地") {
-        address = row.querySelector("td").textContent.trim();
-      }
-    });
-  }
+  divElements.forEach((div) => {
+    // 各div要素内の住所を取得
+    let address = null;
+    const tbody = div.querySelector("tbody");
+    if (tbody) {
+      const rows = tbody.querySelectorAll("tr");
+      rows.forEach((row) => {
+        const th = row.querySelector("th");
+        if (th && th.textContent.trim() === "所在地") {
+          address = row.querySelector("td").textContent.trim();
+        }
+      });
+    }
 
-  const addressElement = div.querySelector(".address");
-  if (addressElement) {
-    const address = addressElement.textContent.trim() ?? address;
-  }
+    const addressElement = div.querySelector(".address");
+    if (addressElement) {
+      const address = addressElement.textContent.trim() ?? address;
+    }
 
-  if (address == null) {
-    console.log("wrong div: %o", div);
-    return;
-  }
+    if (address == null) {
+      console.log("wrong div: %o", div);
+      return;
+    }
 
-  // 住所が配列内のいずれとも一致しない場合、div要素を削除
-  const isAddressMatched = addressArray.some(
-    (addr) => address.indexOf(addr) > -1
-  );
-  if (!isAddressMatched) {
-    div.remove();
-    return;
-  }
+    // 住所が配列内のいずれとも一致しない場合、div要素を削除
+    const isAddressMatched = addressArray.some(
+      (addr) => address.indexOf(addr) > -1
+    );
+    if (!isAddressMatched) {
+      div.remove();
+      return;
+    }
 
-  console.log("address:", address);
-});
+    console.log("address:", address);
+  });
+}
+
+// 1秒ごとにperiodicallyCheckAddresses関数を実行
+setInterval(periodicallyCheckAddresses, 1000);
